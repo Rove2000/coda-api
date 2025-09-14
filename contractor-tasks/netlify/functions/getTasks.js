@@ -3,16 +3,20 @@ export async function handler(event, context) {
   const DOC_ID = process.env.DOC_ID;
   const TABLE_ID = process.env.TABLE_ID;
 
-  const url = `https://coda.io/apis/v1/docs/${DOC_ID}/tables/${TABLE_ID}/rows`;
+  try {
+    const url = `https://coda.io/apis/v1/docs/${DOC_ID}/tables/${TABLE_ID}/rows`;
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${API_TOKEN}` }
+    });
 
-  const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${API_TOKEN}` }
-  });
+    const data = await res.json();
 
-  const data = await res.json();
+    return {
+      statusCode: 200,
+      body: JSON.stringify(data.items)
+    };
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify(data.items) // send all rows
-  };
+  } catch (err) {
+    return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
+  }
 }
