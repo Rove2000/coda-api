@@ -2,28 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Contractor Tasks</title>
+  <title>All Tasks</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 800px;
+      max-width: 900px;
       margin: 2rem auto;
       padding: 1rem;
       background: #f9f9f9;
     }
     h1 { text-align: center; }
-    input, button {
-      padding: 0.5rem;
-      font-size: 1rem;
-      margin: 0.2rem 0;
-    }
-    button {
-      background: #007bff;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover { background: #0056b3; }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -41,52 +29,49 @@
   </style>
 </head>
 <body>
-  <h1>My Tasks</h1>
-  <p>Enter your contractor key to see your tasks:</p>
-  <input id="keyInput" placeholder="Enter your key" />
-  <button onclick="loadTasks()">Show Tasks</button>
+  <h1>All Tasks</h1>
 
-  <table id="taskTable" style="display:none;">
+  <table id="taskTable">
     <thead>
       <tr>
         <th>Task</th>
         <th>Status</th>
         <th>Due Date</th>
+        <th>Contractor</th>
       </tr>
     </thead>
     <tbody id="taskBody"></tbody>
   </table>
 
-  <p id="noTasks" style="display:none;">No tasks found.</p>
-
   <script>
+    const API_TOKEN = "YOUR_CODA_API_TOKEN";   // ⚠️ Token visible in plain HTML/JS
+    const DOC_ID = "YOUR_DOC_ID";
+    const TABLE_ID = "YOUR_TABLE_ID";
+
     async function loadTasks() {
-      const key = document.getElementById("keyInput").value;
-      const res = await fetch(`/.netlify/functions/getTasks?key=${encodeURIComponent(key)}`);
-      const tasks = await res.json();
+      const url = `https://coda.io/apis/v1/docs/${DOC_ID}/tables/${TABLE_ID}/rows`;
 
-      const table = document.getElementById("taskTable");
+      const res = await fetch(url, {
+        headers: { "Authorization": `Bearer ${API_TOKEN}` }
+      });
+      const data = await res.json();
+
       const body = document.getElementById("taskBody");
-      const noTasks = document.getElementById("noTasks");
+      body.innerHTML = "";
 
-      body.innerHTML = ""; // clear old rows
-
-      if (tasks.length === 0) {
-        table.style.display = "none";
-        noTasks.style.display = "block";
-      } else {
-        noTasks.style.display = "none";
-        table.style.display = "table";
-        tasks.forEach(t => {
-          const row = `<tr>
-            <td>${t.task}</td>
-            <td>${t.status}</td>
-            <td>${t.due || "no date"}</td>
-          </tr>`;
-          body.insertAdjacentHTML("beforeend", row);
-        });
-      }
+      data.items.forEach(r => {
+        const row = `<tr>
+          <td>${r.values["Task"] || ""}</td>
+          <td>${r.values["Status"] || ""}</td>
+          <td>${r.values["DueDate"] || ""}</td>
+          <td>${r.values["ContractorKey"] || ""}</td>
+        </tr>`;
+        body.insertAdjacentHTML("beforeend", row);
+      });
     }
+
+    // Load tasks immediately on page load
+    loadTasks();
   </script>
 </body>
 </html>
