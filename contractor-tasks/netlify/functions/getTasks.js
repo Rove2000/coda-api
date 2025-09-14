@@ -1,7 +1,7 @@
 export async function handler(event, context) {
   const API_TOKEN = process.env.CODA_API_TOKEN;  // hidden in Netlify
-  const DOC_ID = "your_doc_id";                  // replace with your doc ID
-  const TABLE_ID = "your_table_id";              // replace with your table ID
+  const DOC_ID = "EXTERN_dsH37h8D6Ti/Extern-API_suF0bxp0#_lujSkOit";                  // replace with your doc ID
+  const TABLE_ID = "Extern-API_suF0bxp0#View-3-of-Tasks_tuL-pK9M";              // replace with your table ID
 
   const contractorKey = event.queryStringParameters.key;
 
