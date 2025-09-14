@@ -1,5 +1,5 @@
 export async function handler(event, context) {
-  const API_TOKEN = process.env.API_TOKEN;
+  const API_TOKEN = process.env.API_TOKEN; // must match your Netlify env variable
   const DOC_ID = process.env.DOC_ID;
   const TABLE_ID = process.env.TABLE_ID;
 
@@ -8,6 +8,8 @@ export async function handler(event, context) {
     const res = await fetch(url, {
       headers: { Authorization: `Bearer ${API_TOKEN}` }
     });
+
+    if (!res.ok) throw new Error('Coda API request failed');
 
     const data = await res.json();
 
@@ -19,12 +21,4 @@ export async function handler(event, context) {
   } catch (err) {
     return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
   }
-  try {
-  const res = await fetch('/.netlify/functions/getTasks');
-  if (!res.ok) throw new Error('Fetch failed');
-  const tasks = await res.json();
-  ...
-} catch(err) {
-  body.innerHTML = `<tr><td colspan="6">Error: ${err.message}</td></tr>`;
-}
 }
