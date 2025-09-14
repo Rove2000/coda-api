@@ -1,34 +1,69 @@
-<table id="taskTable">
-  <thead>
-    <tr>
-      <th>Task</th>
-      <th>Status</th>
-      <th>Due Date</th>
-      <th>Contractor</th>
-    </tr>
-  </thead>
-  <tbody id="taskBody"></tbody>
-</table>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>All Tasks</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: #f9f9f9;
+    }
+    h1 { text-align: center; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 0.5rem;
+      text-align: left;
+    }
+    th {
+      background: #f0f0f0;
+      position: sticky;
+      top: 0;
+    }
+    tr:nth-child(even) { background: #f9f9f9; }
+  </style>
+</head>
+<body>
+  <h1>All Tasks</h1>
+  <table id="taskTable">
+    <thead id="taskHead"></thead>
+    <tbody id="taskBody"></tbody>
+  </table>
 
-<script>
-async function loadTasks() {
-  const res = await fetch('/.netlify/functions/getTasks');
-  const tasks = await res.json();
+  <script>
+    async function loadTasks() {
+      const res = await fetch('/.netlify/functions/getTasks');
+      const tasks = await res.json();
 
-  const body = document.getElementById('taskBody');
-  body.innerHTML = '';
+      if (tasks.length === 0) return;
 
-  tasks.forEach(t => {
-    const row = `<tr>
-      <td>${t.values['Task'] || ''}</td>
-      <td>${t.values['Status'] || ''}</td>
-      <td>${t.values['DueDate'] || ''}</td>
-      <td>${t.values['ContractorKey'] || ''}</td>
-    </tr>`;
-    body.insertAdjacentHTML('beforeend', row);
-  });
-}
+      const head = document.getElementById('taskHead');
+      const body = document.getElementById('taskBody');
 
-// Load automatically
-loadTasks();
-</script>
+      // Use the exact column order you showed
+      const columns = ["Projekt", "Titel", "Beschrieb", "Status", "Verantwortlich", "Key"];
+
+      // Build table header
+      head.innerHTML = '<tr>' + columns.map(col => `<th>${col}</th>`).join('') + '</tr>';
+
+      // Build table body
+      body.innerHTML = '';
+      tasks.forEach(t => {
+        const row = '<tr>' + columns.map(col => `<td>${t.values[col] || ''}</td>`).join('') + '</tr>';
+        body.insertAdjacentHTML('beforeend', row);
+      });
+    }
+
+    // Load table automatically
+    loadTasks();
+  </script>
+</body>
+</html>
