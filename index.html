@@ -39,31 +39,38 @@
   </table>
 
   <script>
-    async function loadTasks() {
-      const res = await fetch('/.netlify/functions/getTasks');
-      const tasks = await res.json();
+   async function loadTasks() {
+  const head = document.getElementById('taskHead');
+  const body = document.getElementById('taskBody');
 
-      if (tasks.length === 0) return;
+  try {
+    const res = await fetch('/.netlify/functions/getTasks');
+    if (!res.ok) throw new Error('Fetch failed');
+    const tasks = await res.json();
+    console.log('Fetched tasks:', tasks);
 
-      const head = document.getElementById('taskHead');
-      const body = document.getElementById('taskBody');
-
-      // Use the exact column order you showed
-      const columns = ["Projekt", "Titel", "Beschrieb", "Status", "Verantwortlich", "Key"];
-
-      // Build table header
-      head.innerHTML = '<tr>' + columns.map(col => `<th>${col}</th>`).join('') + '</tr>';
-
-      // Build table body
-      body.innerHTML = '';
-      tasks.forEach(t => {
-        const row = '<tr>' + columns.map(col => `<td>${t.values[col] || ''}</td>`).join('') + '</tr>';
-        body.insertAdjacentHTML('beforeend', row);
-      });
+    if (!tasks || tasks.length === 0) {
+      body.innerHTML = '<tr><td colspan="6">No tasks found.</td></tr>';
+      return;
     }
 
-    // Load table automatically
-    loadTasks();
+    const columns = ["Projekt", "Titel", "Beschrieb", "Status", "Verantwortlich", "Key"];
+    head.innerHTML = '<tr>' + columns.map(c => `<th>${c}</th>`).join('') + '</tr>';
+
+    body.innerHTML = '';
+    tasks.forEach(t => {
+      const row = '<tr>' + columns.map(c => `<td>${t.values[c] || ''}</td>`).join('') + '</tr>';
+      body.insertAdjacentHTML('beforeend', row);
+    });
+
+  } catch(err) {
+    console.error(err);
+    body.innerHTML = `<tr><td colspan="6">Error: ${err.message}</td></tr>`;
+  }
+}
+
+loadTasks();
+
   </script>
 </body>
 </html>
