@@ -1,5 +1,5 @@
 export async function handler(event, context) {
-  const API_TOKEN = process.env.CODA_API_TOKEN;
+  const API_TOKEN = process.env.API_TOKEN;
   const DOC_ID = process.env.DOC_ID;
   const TABLE_ID = process.env.TABLE_ID;
 
