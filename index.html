@@ -1,77 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>All Tasks</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 900px;
-      margin: 2rem auto;
-      padding: 1rem;
-      background: #f9f9f9;
-    }
-    h1 { text-align: center; }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-      background: white;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 0.5rem;
-      text-align: left;
-    }
-    th {
-      background: #f0f0f0;
-    }
-  </style>
-</head>
-<body>
-  <h1>All Tasks</h1>
+<table id="taskTable">
+  <thead>
+    <tr>
+      <th>Task</th>
+      <th>Status</th>
+      <th>Due Date</th>
+      <th>Contractor</th>
+    </tr>
+  </thead>
+  <tbody id="taskBody"></tbody>
+</table>
 
-  <table id="taskTable">
-    <thead>
-      <tr>
-        <th>Task</th>
-        <th>Status</th>
-        <th>Due Date</th>
-        <th>Contractor</th>
-      </tr>
-    </thead>
-    <tbody id="taskBody"></tbody>
-  </table>
+<script>
+async function loadTasks() {
+  const res = await fetch('/.netlify/functions/getTasks');
+  const tasks = await res.json();
 
-  <script>
-    const API_TOKEN = "YOUR_CODA_API_TOKEN";   // ⚠️ Token visible in plain HTML/JS
-    const DOC_ID = "YOUR_DOC_ID";
-    const TABLE_ID = "YOUR_TABLE_ID";
+  const body = document.getElementById('taskBody');
+  body.innerHTML = '';
 
-    async function loadTasks() {
-      const url = `https://coda.io/apis/v1/docs/${DOC_ID}/tables/${TABLE_ID}/rows`;
+  tasks.forEach(t => {
+    const row = `<tr>
+      <td>${t.values['Task'] || ''}</td>
+      <td>${t.values['Status'] || ''}</td>
+      <td>${t.values['DueDate'] || ''}</td>
+      <td>${t.values['ContractorKey'] || ''}</td>
+    </tr>`;
+    body.insertAdjacentHTML('beforeend', row);
+  });
+}
 
-      const res = await fetch(url, {
-        headers: { "Authorization": `Bearer ${API_TOKEN}` }
-      });
-      const data = await res.json();
-
-      const body = document.getElementById("taskBody");
-      body.innerHTML = "";
-
-      data.items.forEach(r => {
-        const row = `<tr>
-          <td>${r.values["Task"] || ""}</td>
-          <td>${r.values["Status"] || ""}</td>
-          <td>${r.values["DueDate"] || ""}</td>
-          <td>${r.values["ContractorKey"] || ""}</td>
-        </tr>`;
-        body.insertAdjacentHTML("beforeend", row);
-      });
-    }
-
-    // Load tasks immediately on page load
-    loadTasks();
-  </script>
-</body>
-</html>
+// Load automatically
+loadTasks();
+</script>
